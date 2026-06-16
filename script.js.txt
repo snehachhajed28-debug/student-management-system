@@ -1,0 +1,85 @@
+let students = JSON.parse(localStorage.getItem("students")) || [];
+let editIndex = -1;
+
+// LOAD
+window.onload = function () {
+  renderTable();
+};
+
+// ADD / UPDATE
+function addStudent() {
+  let name = document.getElementById("name").value;
+  let course = document.getElementById("course").value;
+
+  if (name === "" || course === "") {
+    alert("Fill all fields");
+    return;
+  }
+
+  if (editIndex !== -1) {
+    students[editIndex].name = name;
+    students[editIndex].course = course;
+    editIndex = -1;
+  } else {
+    students.push({ name, course });
+  }
+
+  saveData();
+  clearInputs();
+  renderTable();
+}
+
+// EDIT
+function editStudent(index) {
+  document.getElementById("name").value = students[index].name;
+  document.getElementById("course").value = students[index].course;
+  editIndex = index;
+}
+
+// DELETE
+function deleteStudent(index) {
+  students.splice(index, 1);
+  saveData();
+  renderTable();
+}
+
+// SEARCH
+function searchStudent() {
+  let value = document.getElementById("searchInput").value.toLowerCase();
+
+  let filtered = students.filter(s =>
+    s.name.toLowerCase().includes(value)
+  );
+
+  renderTable(filtered);
+}
+
+// RENDER
+function renderTable(data = students) {
+  let table = document.getElementById("studentList");
+  table.innerHTML = "";
+
+  data.forEach((student, index) => {
+    table.innerHTML += `
+      <tr>
+        <td>${student.name}</td>
+        <td>${student.course}</td>
+        <td>
+          <button class="edit" onclick="editStudent(${index})">Edit</button>
+          <button class="delete" onclick="deleteStudent(${index})">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+// SAVE LOCAL STORAGE
+function saveData() {
+  localStorage.setItem("students", JSON.stringify(students));
+}
+
+// CLEAR INPUTS
+function clearInputs() {
+  document.getElementById("name").value = "";
+  document.getElementById("course").value = "";
+}
